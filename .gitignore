@@ -41,3 +41,16 @@ example
 # generated native folders
 /ios
 /android
+
+# test build output
+.test-build/
+
+# expo web export
+.expo-verify/
+dist/
+
+# environment (.env.example is committed; real values are not)
+.env
+.env.local
+.env*.local
+!.env.example

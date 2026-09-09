@@ -1,0 +1,813 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Safe Route AI — Technical Documentation</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+
+  :root {
+    --ink: #14202e;
+    --ink-2: #3d4d61;
+    --ink-3: #6b7b8f;
+    --rule: #d9e0e8;
+    --rule-soft: #eef2f6;
+    --accent: #1d4ed8;
+    --accent-soft: #eef3fe;
+    --ok: #0f7b52;
+    --warn: #92400e;
+    --warn-soft: #fdf6ec;
+    --stop: #b0203f;
+    --code-bg: #f5f7fa;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    font-size: 10.2pt;
+    line-height: 1.55;
+    margin: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  h1, h2, h3, h4 { line-height: 1.25; margin: 0 0 .4em; font-weight: 650; }
+  h1 { font-size: 25pt; letter-spacing: -.5pt; }
+  h2 {
+    font-size: 15pt; margin-top: 1.9em; padding-bottom: .3em;
+    border-bottom: 1.5px solid var(--rule); letter-spacing: -.2pt;
+  }
+  h3 { font-size: 11.6pt; margin-top: 1.5em; color: var(--ink); }
+  h4 { font-size: 10.4pt; margin-top: 1.2em; color: var(--ink-2); }
+  p { margin: 0 0 .75em; }
+  ul, ol { margin: 0 0 .8em; padding-left: 1.15em; }
+  li { margin-bottom: .3em; }
+  strong { font-weight: 650; }
+  a { color: var(--accent); text-decoration: none; }
+
+  code {
+    font-family: "Cascadia Mono", Consolas, "Courier New", monospace;
+    font-size: .88em; background: var(--code-bg);
+    padding: .1em .35em; border-radius: 3px; color: #1c3d5a;
+  }
+  pre {
+    font-family: "Cascadia Mono", Consolas, monospace;
+    font-size: 8.6pt; line-height: 1.5; background: var(--code-bg);
+    border: 1px solid var(--rule); border-left: 3px solid var(--accent);
+    border-radius: 4px; padding: .7em .9em; overflow-x: auto;
+    margin: 0 0 .9em; white-space: pre-wrap;
+  }
+  pre code { background: none; padding: 0; }
+
+  table { width: 100%; border-collapse: collapse; margin: 0 0 1em; font-size: 9.3pt; }
+  th, td { text-align: left; padding: .42em .6em; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  th { background: #f7f9fb; font-weight: 650; border-bottom: 1.5px solid var(--rule); font-size: 8.8pt;
+       text-transform: uppercase; letter-spacing: .4pt; color: var(--ink-2); }
+  tbody tr:last-child td { border-bottom: 1px solid var(--rule); }
+
+  .cover { page-break-after: always; padding-top: 42mm; }
+  .cover .eyebrow { font-size: 9pt; letter-spacing: 2.2pt; text-transform: uppercase; color: var(--accent); font-weight: 650; }
+  .cover h1 { margin: .35em 0 .15em; }
+  .cover .sub { font-size: 12.5pt; color: var(--ink-2); max-width: 118mm; line-height: 1.45; }
+  .cover .loop {
+    margin: 2.1em 0; padding: 1em 1.2em; background: var(--accent-soft);
+    border-left: 3px solid var(--accent); border-radius: 3px;
+    font-size: 11.5pt; font-weight: 600; color: #16337d;
+  }
+  .cover dl { display: grid; grid-template-columns: 34mm 1fr; gap: .45em 0; margin-top: 2.4em; font-size: 9.6pt; }
+  .cover dt { color: var(--ink-3); }
+  .cover dd { margin: 0; font-weight: 600; }
+
+  .toc { page-break-after: always; }
+  .toc ol { list-style: none; padding: 0; counter-reset: s; }
+  .toc > ol > li { counter-increment: s; margin-bottom: .5em; font-weight: 600; }
+  .toc > ol > li::before { content: counter(s) ".  "; color: var(--accent); }
+  .toc ul { list-style: none; padding-left: 1.5em; margin: .25em 0 0; font-weight: 400; color: var(--ink-2); font-size: 9.5pt; }
+
+  .callout {
+    border: 1px solid var(--rule); border-left: 3px solid var(--ink-3);
+    background: #fafbfc; border-radius: 4px; padding: .75em .95em; margin: 0 0 1em;
+    font-size: 9.6pt;
+  }
+  .callout .label {
+    display: block; font-size: 8.2pt; text-transform: uppercase; letter-spacing: 1pt;
+    font-weight: 700; margin-bottom: .3em; color: var(--ink-3);
+  }
+  .callout.key { border-left-color: var(--accent); background: var(--accent-soft); }
+  .callout.key .label { color: var(--accent); }
+  .callout.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+  .callout.warn .label { color: var(--warn); }
+
+  .pill {
+    display: inline-block; font-size: 7.8pt; font-weight: 700; padding: .12em .5em;
+    border-radius: 3px; letter-spacing: .3pt; text-transform: uppercase;
+  }
+  .pill.yes { background: #e4f4ec; color: var(--ok); }
+  .pill.no  { background: #fbe9ed; color: var(--stop); }
+  .pill.part{ background: var(--warn-soft); color: var(--warn); }
+
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5em; margin: 0 0 1.2em; }
+  .metric { border: 1px solid var(--rule); border-radius: 4px; padding: .55em .7em; background: #fbfcfd; }
+  .metric .n { font-size: 15pt; font-weight: 680; letter-spacing: -.4pt; }
+  .metric .l { font-size: 7.9pt; color: var(--ink-3); text-transform: uppercase; letter-spacing: .5pt; }
+
+  .tree {
+    font-family: "Cascadia Mono", Consolas, monospace; font-size: 8.4pt; line-height: 1.62;
+    background: var(--code-bg); border: 1px solid var(--rule); border-radius: 4px;
+    padding: .8em 1em; margin-bottom: 1em; white-space: pre;
+  }
+  .tree .c { color: var(--ink-3); }
+
+  h2, h3, h4 { page-break-after: avoid; }
+  pre, table, .callout, .metrics { page-break-inside: avoid; }
+  .page-break { page-break-before: always; }
+  footer { margin-top: 2.5em; padding-top: .8em; border-top: 1px solid var(--rule);
+           font-size: 8.4pt; color: var(--ink-3); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════ COVER ══════════════════════════ -->
+<section class="cover">
+  <div class="eyebrow">Technical Documentation</div>
+  <h1>Safe Route AI</h1>
+  <p class="sub">Security threat reporting and route advisory for humanitarian
+  teams operating in North Eastern Kenya.</p>
+
+  <div class="loop">Report → Analyse → Verify → Alert → Protect</div>
+
+  <p style="max-width:120mm; color:var(--ink-2); font-size:10pt;">
+  A mobile application that centralises security incident reporting, uses AI to
+  classify reports and detect duplicates, requires human verification before any
+  threat goes live, and delivers location-aware alerts and route advisories to
+  the workers those threats affect.</p>
+
+  <dl>
+    <dt>Platform</dt><dd>React Native (Expo SDK 57) — Android, iOS, Web</dd>
+    <dt>Backend</dt><dd>Supabase — PostgreSQL 17 + PostGIS, Auth, Realtime</dd>
+    <dt>Language</dt><dd>TypeScript (strict)</dd>
+    <dt>Application code</dt><dd>109 files · ~25,400 lines</dd>
+    <dt>Database</dt><dd>11 migrations · ~2,000 lines SQL</dd>
+    <dt>Automated tests</dt><dd>149 assertions across 3 suites</dd>
+    <dt>Status</dt><dd>Frontend complete · Backend live · AI pending deployment</dd>
+  </dl>
+</section>
+
+<!-- ══════════════════════════ TOC ══════════════════════════ -->
+<section class="toc">
+  <h2 style="margin-top:0">Contents</h2>
+  <ol>
+    <li>The Problem and the Response
+      <ul><li>Operating context · Why verification is the core</li></ul></li>
+    <li>Roles and Separation of Duties
+      <ul><li>Permission matrix · Why admins cannot verify</li></ul></li>
+    <li>System Architecture
+      <ul><li>Layers · Data flow · The transport seam</li></ul></li>
+    <li>Data Model
+      <ul><li>Tables · Constraints the database enforces</li></ul></li>
+    <li>Security Model
+      <ul><li>Row Level Security · Reporter anonymity · Audit trail</li></ul></li>
+    <li>The Alert Fan-Out
+      <ul><li>The four rules · Deliberate exclusions</li></ul></li>
+    <li>AI Classification
+      <ul><li>Advisory-only design · Duplicate detection · Oversight metrics</li></ul></li>
+    <li>Offline Resilience
+      <ul><li>The outbox · Idempotency · Cache policy</li></ul></li>
+    <li>Safe Route Advisory
+      <ul><li>PostGIS analysis · Risk scoring</li></ul></li>
+    <li>SOS
+      <ul><li>Trigger design · Response console</li></ul></li>
+    <li>Design System
+      <ul><li>Dark-first rationale · Validated severity palette</li></ul></li>
+    <li>Testing and Verification</li>
+    <li>Deployment and Operations</li>
+    <li>Known Limitations and Roadmap</li>
+  </ol>
+</section>
+
+<!-- ══════════════════════════ 1 ══════════════════════════ -->
+<h2>1. The Problem and the Response</h2>
+
+<p>Humanitarian organisations in Garissa, Wajir and Mandera counties operate in
+an environment of armed incidents, road ambushes, banditry and inter-communal
+conflict. Security information exists, but it moves by phone call, WhatsApp group
+and word of mouth. Three failures follow from that:</p>
+
+<ul>
+  <li><strong>Information does not reach the people it concerns.</strong> A road
+  ambush is known to one team and unknown to the convoy that leaves an hour later.</li>
+  <li><strong>Unverified rumour circulates as fact.</strong> A second-hand report
+  can shut down a corridor that was never actually dangerous.</li>
+  <li><strong>Nothing is auditable.</strong> After an incident, there is no record
+  of who knew what, or when.</li>
+</ul>
+
+<p>Safe Route AI addresses these with a single closed loop.</p>
+
+<table>
+  <thead><tr><th style="width:22mm">Stage</th><th>What happens</th><th style="width:32mm">Who acts</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Report</strong></td><td>Free-text description, optional photo, GPS captured automatically. Works with no connectivity.</td><td>Humanitarian worker</td></tr>
+    <tr><td><strong>Analyse</strong></td><td>AI classifies threat type and severity, suggests an alert radius, and flags likely duplicates.</td><td>System (advisory only)</td></tr>
+    <tr><td><strong>Verify</strong></td><td>An officer confirms or overrides every field. Nothing reaches the field without this step.</td><td>Security officer</td></tr>
+    <tr><td><strong>Alert</strong></td><td>Fan-out to affected workers by organisation, partnership, proximity and declared region.</td><td>System</td></tr>
+    <tr><td><strong>Protect</strong></td><td>Threat map, route risk comparison, one-tap SOS.</td><td>Humanitarian worker</td></tr>
+  </tbody>
+</table>
+
+<div class="callout key">
+  <span class="label">The central design decision</span>
+  <strong>Verification by a human is mandatory and cannot be bypassed.</strong>
+  The AI proposes; a security officer decides. This is enforced at the database
+  level, not merely in the interface — a client that bypassed the app entirely
+  still could not publish an unverified threat. Everything else in the system is
+  arranged around protecting that property.
+</div>
+
+<h3>Operating constraints that shaped the build</h3>
+
+<table>
+  <thead><tr><th style="width:38mm">Constraint</th><th>Consequence for the design</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Connectivity gaps</strong></td><td>Reports and SOS are recorded on the device before any network call, and send themselves later. Nothing blocks on the network.</td></tr>
+    <tr><td><strong>Retaliation risk</strong></td><td>Reporter identity is stripped and positions blurred before a report reaches a peer — at the data layer, not in a component.</td></tr>
+    <tr><td><strong>Night and vehicle use</strong></td><td>Dark-first interface. A bright screen is both uncomfortable and a way of making yourself visible.</td></tr>
+    <tr><td><strong>Decisions under stress</strong></td><td>Severity is encoded by colour, word and size. SOS requires a deliberate hold, not a tap.</td></tr>
+    <tr><td><strong>Accountability after incidents</strong></td><td>Append-only audit log that no client can write to or suppress.</td></tr>
+  </tbody>
+</table>
+
+<!-- ══════════════════════════ 2 ══════════════════════════ -->
+<h2>2. Roles and Separation of Duties</h2>
+
+<p>Three roles, with boundaries enforced by Row Level Security in PostgreSQL
+rather than by hiding controls in the interface.</p>
+
+<table>
+  <thead><tr><th style="width:58mm">Capability</th><th>Worker</th><th>Officer</th><th>Admin</th></tr></thead>
+  <tbody>
+    <tr><td>File a threat report</td><td><span class="pill yes">Yes</span></td><td><span class="pill yes">Yes</span></td><td><span class="pill no">No</span></td></tr>
+    <tr><td>See verified threats</td><td><span class="pill part">Anonymised</span></td><td><span class="pill yes">Full</span></td><td><span class="pill yes">Full</span></td></tr>
+    <tr><td>See pending reports</td><td><span class="pill part">Own only</span></td><td><span class="pill yes">Yes</span></td><td><span class="pill part">Read-only</span></td></tr>
+    <tr><td><strong>Verify or dismiss a report</strong></td><td><span class="pill no">No</span></td><td><span class="pill yes">Yes</span></td><td><span class="pill no">No</span></td></tr>
+    <tr><td>Set the alert radius</td><td><span class="pill no">No</span></td><td><span class="pill yes">Yes</span></td><td><span class="pill no">No</span></td></tr>
+    <tr><td>Issue a standalone advisory</td><td><span class="pill no">No</span></td><td><span class="pill yes">Yes</span></td><td><span class="pill no">No</span></td></tr>
+    <tr><td>Trigger an SOS</td><td><span class="pill yes">Yes</span></td><td><span class="pill yes">Yes</span></td><td><span class="pill no">No</span></td></tr>
+    <tr><td>Respond to an SOS</td><td><span class="pill no">No</span></td><td><span class="pill yes">Yes</span></td><td><span class="pill no">No</span></td></tr>
+    <tr><td>Invite and manage people</td><td><span class="pill no">No</span></td><td><span class="pill no">No</span></td><td><span class="pill yes">Yes</span></td></tr>
+    <tr><td>Manage partnerships</td><td><span class="pill no">No</span></td><td><span class="pill no">No</span></td><td><span class="pill yes">Yes</span></td></tr>
+    <tr><td>Read the audit log</td><td><span class="pill no">No</span></td><td><span class="pill yes">Yes</span></td><td><span class="pill yes">Yes</span></td></tr>
+  </tbody>
+</table>
+
+<div class="callout key">
+  <span class="label">Why an admin cannot verify a report</span>
+  An admin creates the officer accounts. If the same person could also exercise
+  an officer's authority, a single account could both grant the power to publish
+  threats and use it — and the audit trail would no longer show an independent
+  decision. Splitting the two means every verified threat carries the name of
+  someone who was appointed to that role by a different person.
+  <br><br>
+  The same reasoning excludes officers from creating invites, and excludes
+  everyone from writing to the audit log.
+</div>
+
+<h3>Cross-organisation sharing</h3>
+
+<p>Organisations may declare cross-share partnerships. Partnerships are
+<strong>reciprocal by construction</strong> — enforced by a database trigger that
+mirrors the relationship — because a one-way arrangement would let an
+organisation consume another's threat intelligence without contributing any.</p>
+
+<table>
+  <thead><tr><th style="width:52mm">Data</th><th>Shared with partners?</th></tr></thead>
+  <tbody>
+    <tr><td>Verified threat reports</td><td><span class="pill yes">Yes</span></td></tr>
+    <tr><td>Safety advisories (opt-in per advisory)</td><td><span class="pill yes">Yes</span></td></tr>
+    <tr><td>Pending, unverified reports</td><td><span class="pill no">No</span></td></tr>
+    <tr><td>Staff directory</td><td><span class="pill no">No</span></td></tr>
+    <tr><td><strong>Live SOS locations</strong></td><td><span class="pill no">Never</span></td></tr>
+  </tbody>
+</table>
+
+<p>A live worker position is the most sensitive datum in the system. Partner
+organisations share threats; they do not share people.</p>
+
+<!-- ══════════════════════════ 3 ══════════════════════════ -->
+<h2 class="page-break">3. System Architecture</h2>
+
+<div class="tree"><span class="c">src/</span>
+  api/                  <span class="c">the backend seam</span>
+    client.ts           <span class="c">mock transport: latency, offline, rate limits, role guards</span>
+    db.ts               <span class="c">in-memory store, realtime channels, audit</span>
+    seed.ts             <span class="c">deterministic demo dataset</span>
+    cache.ts            <span class="c">stale-while-revalidate, disk persistence, tag invalidation</span>
+    rateLimit.ts        <span class="c">token buckets, persisted across restarts</span>
+    routing.ts          <span class="c">route construction and risk scoring (shared)</span>
+    realtime.ts         <span class="c">one subscribe() over both transports</span>
+    endpoints/          <span class="c">auth · reports · alerts · sos · org · analytics · routes</span>
+    supabase/           <span class="c">client · mappers · call · one module per endpoint</span>
+  ai/classifier.ts      <span class="c">classification and duplicate detection</span>
+  lib/                  <span class="c">geo · offlineQueue · validation · logger · push · network</span>
+  state/                <span class="c">auth · connectivity+outbox · notifications · toast</span>
+  components/ui/        <span class="c">design system primitives</span>
+  components/domain/    <span class="c">threat cards, AI panel, verify sheet, maps, charts</span>
+  app/                  <span class="c">32 routes, one group per role</span>
+
+<span class="c">supabase/</span>
+  migrations/           <span class="c">11 versioned migrations</span>
+  seed.sql              <span class="c">demo data, applied through the real invite flow</span>
+</div>
+
+<h3>The transport seam</h3>
+
+<p>The application supports two interchangeable backends behind one interface.
+Screens import an endpoint and never learn which answered:</p>
+
+<pre><code>export const reportsApi = API_MODE === 'supabase'
+  ? supabaseReportsApi
+  : mockReportsApi;</code></pre>
+
+<p>The mock is a <strong>first-class implementation</strong>, not a migration
+stub. It runs entirely on-device with a deterministic dataset, needs no network
+and no project, and is switched on with a single environment variable. It exists
+so the application can be demonstrated, reviewed and developed without
+infrastructure — and so the offline paths can be exercised deliberately.</p>
+
+<h3>Data flow: filing through to alerting</h3>
+
+<pre><code>Worker files a report
+  → client mints a UUID; zod validates the draft
+  → OFFLINE?  outbox (persisted) → backoff retries → same id, no duplicate
+  → ONLINE?   INSERT ... status 'pending'   [RLS forbids any other status]
+              → classifier writes ai_suggestions   [service role only]
+              → Realtime pushes it to the officer queue
+
+Officer verifies
+  → RLS: officer role required, own or partner organisation
+  → officer-confirmed columns written; ai_suggestions left untouched
+  → trigger stamps verified_by / verified_at from the JWT, not the payload
+  → trigger appends an audit entry naming every overridden field
+  → fan_out_alert() applies the four rules in one SQL statement
+
+Worker receives
+  → Realtime toast + OS notification + persistent feed row
+  → the feed row carries the reasons it matched</code></pre>
+
+<h3>Cross-platform mapping</h3>
+
+<p><code>ThreatMap</code> has two implementations behind one props contract:
+<code>react-native-maps</code> on device, and an SVG schematic on web, where that
+library has no build. The web version draws real road corridors, real place names
+and an equirectangular projection — every coordinate, radius and route on it is
+accurate; it simply has no tiles. Screens import <code>ThreatMap</code> and never
+learn which they received.</p>
+
+<!-- ══════════════════════════ 4 ══════════════════════════ -->
+<h2>4. Data Model</h2>
+
+<table>
+  <thead><tr><th style="width:34mm">Table</th><th>Purpose and notable columns</th></tr></thead>
+  <tbody>
+    <tr><td><code>organizations</code></td><td>Name, acronym, operating regions, reciprocal <code>cross_share_partners</code>, per-org policy settings.</td></tr>
+    <tr><td><code>profiles</code></td><td>One row per auth user. Role, organisation, <code>operating_regions</code>, <code>last_known_location</code> (geography), notification preferences.</td></tr>
+    <tr><td><code>threat_reports</code></td><td>The core entity. Reporter-supplied fields, officer-confirmed fields (nullable until verified), and <code>ai_suggestions</code> (jsonb, immutable once written).</td></tr>
+    <tr><td><code>safety_alerts</code></td><td>Threat alerts and standalone advisories. Location, radius, region scope, expiry.</td></tr>
+    <tr><td><code>notifications</code></td><td>The persistent feed. Carries <code>match_reasons</code> so a recipient can see why it reached them.</td></tr>
+    <tr><td><code>sos_events</code></td><td>Status, live position, position <code>track</code> and <code>timeline</code> as jsonb.</td></tr>
+    <tr><td><code>invites</code></td><td>Invite-gated signup. The code binds an account to an organisation and a role.</td></tr>
+    <tr><td><code>audit_log</code></td><td>Append-only. Actor, action, before/after values.</td></tr>
+    <tr><td><code>regions</code></td><td>Sub-county reference geography, needed server-side by the fan-out.</td></tr>
+  </tbody>
+</table>
+
+<h3>Invariants the database refuses to break</h3>
+
+<p>These are constraints and triggers, not application conventions. They hold
+regardless of which client is talking to the database.</p>
+
+<table>
+  <thead><tr><th style="width:52mm">Rule</th><th>Mechanism</th></tr></thead>
+  <tbody>
+    <tr><td>A verified report must carry threat type, severity and alert radius</td><td><code>CHECK</code> constraint</td></tr>
+    <tr><td>A dismissed report must carry a reason</td><td><code>CHECK</code> constraint</td></tr>
+    <tr><td>A resolved report can never be reopened</td><td>Trigger</td></tr>
+    <tr><td>AI suggestions are written once, by the server, and never edited</td><td>Trigger + RLS</td></tr>
+    <tr><td>Verification is attributed to the acting JWT, not the payload</td><td>Trigger</td></tr>
+    <tr><td>Nobody may change their own role, organisation or status</td><td>Trigger</td></tr>
+    <tr><td>An organisation must always retain one active admin</td><td>Trigger</td></tr>
+    <tr><td>At most one live SOS per worker</td><td>Partial unique index</td></tr>
+    <tr><td>Partnerships are always reciprocal</td><td>Trigger</td></tr>
+    <tr><td>Only <code>read_at</code> may change on a notification</td><td>Trigger</td></tr>
+  </tbody>
+</table>
+
+<h3>Geography</h3>
+
+<p>Positions are stored as PostGIS <code>geography(Point, 4326)</code> with GiST
+indexes, which is what makes proximity queries fast. Because PostgREST serialises
+geography as WKB hex, generated <code>lat</code>/<code>lng</code> columns expose
+plain numbers to clients. They are <code>STORED</code> and recomputed by Postgres
+on every write, so they cannot drift from the geometry they derive from.</p>
+
+<!-- ══════════════════════════ 5 ══════════════════════════ -->
+<h2 class="page-break">5. Security Model</h2>
+
+<div class="metrics">
+  <div class="metric"><div class="n">9</div><div class="l">Tables</div></div>
+  <div class="metric"><div class="n">22</div><div class="l">RLS policies</div></div>
+  <div class="metric"><div class="n">19</div><div class="l">DB functions</div></div>
+  <div class="metric"><div class="n">12</div><div class="l">Triggers</div></div>
+</div>
+
+<h3>Why Row Level Security carries the weight</h3>
+
+<p>The application ships with a public API key embedded in the bundle. Anyone
+with the installed app can extract it. That is by design and is safe only because
+<strong>every table denies by default</strong> and opens only what a given
+authenticated role needs. The client-side role checks are a courtesy that
+produces better error messages; the policies are the actual guarantee.</p>
+
+<p>Policy helper functions are <code>SECURITY DEFINER</code> with a pinned
+<code>search_path</code>. Definer is required because a policy on
+<code>profiles</code> that itself queries <code>profiles</code> would recurse
+infinitely; the pinned search path prevents a caller shadowing <code>public</code>
+with their own tables.</p>
+
+<h3>Reporter anonymity</h3>
+
+<p>Protecting reporters from retaliation is a safety requirement, not a privacy
+preference. RLS controls which <em>rows</em> are visible but cannot blank a
+column, so peer-facing access goes through a dedicated view:</p>
+
+<ul>
+  <li>Reporter identity replaced with <code>null</code></li>
+  <li>Photograph withheld</li>
+  <li>Position offset by 50–300 m — deterministic, so the pin does not wander
+  between loads; far below any alert radius, so the warning stays accurate</li>
+  <li>Your own reports are always returned in full</li>
+</ul>
+
+<p>Organisations operating in especially sensitive contexts can additionally hide
+reporter identity from their own officers.</p>
+
+<h3>Authentication</h3>
+
+<table>
+  <thead><tr><th style="width:44mm">Control</th><th>Behaviour</th></tr></thead>
+  <tbody>
+    <tr><td>Account creation</td><td>Invite-gated. A database trigger validates the code inside the signup transaction — an invalid code leaves no orphan account.</td></tr>
+    <tr><td>Password reset</td><td>Six-digit code by email, single-use, time-limited, attempt-capped.</td></tr>
+    <tr><td>Enumeration resistance</td><td>Reset requests return an identical response whether or not the address is registered.</td></tr>
+    <tr><td>Session storage</td><td>Platform keychain / keystore on device.</td></tr>
+    <tr><td>Password change</td><td>Revokes all other sessions — the control used when a device is lost.</td></tr>
+    <tr><td>Deactivation</td><td>Immediate; revokes sessions.</td></tr>
+  </tbody>
+</table>
+
+<h3>Audit trail</h3>
+
+<p>The audit log has <strong>no insert, update or delete policy</strong>. Entries
+are appended exclusively by <code>SECURITY DEFINER</code> triggers, so no client
+can forge or suppress one. Append-only is the property that makes it evidence
+rather than a changelog.</p>
+
+<!-- ══════════════════════════ 6 ══════════════════════════ -->
+<h2>6. The Alert Fan-Out</h2>
+
+<p>A worker is alerted when <strong>any</strong> of four conditions holds. All
+four are evaluated in a single SQL statement using PostGIS.</p>
+
+<table>
+  <thead><tr><th style="width:12mm">#</th><th style="width:52mm">Condition</th><th>Rationale</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Same organisation as the report</td><td>Colleagues share an operating picture.</td></tr>
+    <tr><td>2</td><td>A cross-share partner of the reporting organisation</td><td>Threats do not respect agency boundaries.</td></tr>
+    <tr><td>3</td><td>Last known position inside the alert radius</td><td>Proximity is the most urgent case.</td></tr>
+    <tr><td>4</td><td>Threat falls inside a declared operating region</td><td>Covers a worker who travels there but is elsewhere today.</td></tr>
+  </tbody>
+</table>
+
+<p>Each notification carries the reasons it matched, and the interface displays
+them. An alert that explains itself — <em>"you are inside the 12 km radius"</em>
+— is actionable in a way that an unexplained one is not.</p>
+
+<h3>Deliberate exclusions</h3>
+
+<ul>
+  <li><strong>The reporter is never alerted about their own report.</strong> They
+  already know; alerting them is noise, not safety.</li>
+  <li><strong>Admins are excluded by default.</strong> They manage the
+  organisation and are not in the field. Paging them on every incident trains
+  everyone to ignore alerts.</li>
+  <li><strong>Quiet hours are respected — except for critical.</strong></li>
+  <li><strong>"Only critical" does not suppress proximity.</strong> Anything
+  inside the radius reaches the user regardless of preference, because that is
+  about their own safety rather than their inbox.</li>
+</ul>
+
+<div class="callout key">
+  <span class="label">Preview before sending</span>
+  Before an officer commits, the interface shows exactly how many people will be
+  notified, computed by a function that applies the same four rules as the
+  fan-out itself. Widening a radius from 6 km to 20 km visibly changes the count
+  from four people to thirty-one. The number shown is the number that will
+  actually be reached — not an estimate that can drift.
+</div>
+
+<!-- ══════════════════════════ 7 ══════════════════════════ -->
+<h2 class="page-break">7. AI Classification</h2>
+
+<p>On submission, a report is analysed for threat type, severity, priority, a
+suggested alert radius, and likely duplication. The output is written to
+<code>ai_suggestions</code> and is <strong>never</strong> written to the
+officer-confirmed columns.</p>
+
+<h3>Advisory by construction</h3>
+
+<table>
+  <thead><tr><th style="width:48mm">Property</th><th>How it is guaranteed</th></tr></thead>
+  <tbody>
+    <tr><td>AI cannot publish a threat</td><td>RLS forbids a non-officer changing status; the insert policy forces <code>pending</code>.</td></tr>
+    <tr><td>AI output cannot be edited</td><td>A trigger rejects any client write to <code>ai_suggestions</code>, including the first.</td></tr>
+    <tr><td>Proposal and decision stay separable</td><td>Stored in different columns; the audit entry records which fields were overridden.</td></tr>
+    <tr><td>Classification never blocks a report</td><td>Runs after the row is committed. A failed classification leaves the report fully reviewable.</td></tr>
+    <tr><td>Low confidence is stated plainly</td><td>A "needs more detail" flag is surfaced rather than smoothed over.</td></tr>
+  </tbody>
+</table>
+
+<h3>Duplicate detection</h3>
+
+<p>Two stages, mirroring how the production function is intended to run:</p>
+<ol>
+  <li><strong>Geo and time pre-filter</strong> in SQL — reports within roughly
+  5 km and 12 hours, using the spatial index.</li>
+  <li><strong>Semantic comparison</strong> over that shortlist, scoring lexical
+  overlap, proximity and recency with smooth decay. Two reports of the same
+  ambush are rarely pinned to the same metre.</li>
+</ol>
+
+<p>Only a strong, corroborated match is flagged, and a flag is a
+<em>suggestion</em>: the officer sees both reports side by side and decides.
+Confirming a duplicate closes the second report without issuing a second alert.</p>
+
+<h3>Oversight metrics</h3>
+
+<p>The application reports an <strong>AI agreement rate</strong> — how often
+officers accepted a suggestion unchanged — and flags rates above 92% as a
+concern. Too low means the model is noise. Suspiciously high suggests
+rubber-stamping, which would make the human verification step decorative. The
+metric is shown to officers as a mirror, not only to management.</p>
+
+<!-- ══════════════════════════ 8 ══════════════════════════ -->
+<h2>8. Offline Resilience</h2>
+
+<p>Coverage gaps are the operating norm, not an edge case. Several architectural
+decisions exist only because of this.</p>
+
+<table>
+  <thead><tr><th style="width:44mm">Mechanism</th><th>Behaviour</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Client-minted identifiers</strong></td><td>The device generates a UUID before any network call. It doubles as the idempotency key, so a submission retried after a timeout cannot become a second report.</td></tr>
+    <tr><td><strong>Priority ordering</strong></td><td>SOS always jumps ahead of reports and sends the instant signal returns, surviving app restarts.</td></tr>
+    <tr><td><strong>Capped backoff with jitter</strong></td><td>Per item, so one poisoned entry cannot block the queue. Jitter prevents a convoy regaining signal simultaneously from stampeding the server.</td></tr>
+    <tr><td><strong>Non-retryable failures park</strong></td><td>A malformed payload or permission error cannot be fixed by waiting. It is marked failed and surfaced in the Outbox rather than retried indefinitely.</td></tr>
+    <tr><td><strong>Honest confirmation</strong></td><td>The interface says "saved on this device" — never "sent" — until the server has it.</td></tr>
+  </tbody>
+</table>
+
+<div class="callout warn">
+  <span class="label">Why caching is a safety feature here</span>
+  A worker who opens the threat map in a dead zone must still see the threats
+  verified while they had signal. <strong>A blank map reads as "all clear" — the
+  most dangerous thing this application could say.</strong> Caches therefore
+  serve stale data with a visible "last updated" marker rather than showing an
+  empty state or a spinner.
+</div>
+
+<p>Named cache policies balance freshness against offline usefulness: threat data
+is briefly fresh but retained for a week; the officer queue is near-live;
+analytics tolerate being a minute old. A development switch simulates loss of
+signal so every queue, cache and retry path can be exercised without leaving the
+building.</p>
+
+<!-- ══════════════════════════ 9 ══════════════════════════ -->
+<h2>9. Safe Route Advisory</h2>
+
+<p>A worker enters origin and destination and receives two or three candidate
+routes, each scored by the verified incidents near it.</p>
+
+<p><strong>Only verified reports count.</strong> An unverified rumour must not be
+able to close a road.</p>
+
+<h3>Analysis</h3>
+
+<p>For each candidate polyline, PostGIS finds every verified threat within a
+configurable buffer of the line (<code>ST_DWithin</code> against the route
+geography). Each is scored with two independent decays:</p>
+
+<ul>
+  <li><strong>Recency</strong> — exponential, roughly a fortnight half-life</li>
+  <li><strong>Proximity</strong> — linear across the buffer</li>
+</ul>
+
+<p>A critical ambush 200 m off the road last night therefore weighs far more than
+the same event 1.9 km away a month ago, and the score says so.</p>
+
+<h3>Presentation</h3>
+
+<p>Routes are ranked with incident count, worst severity, distance and estimated
+time. A route carrying a critical incident inside the buffer is
+<strong>never</strong> recommended, whatever its aggregate score.</p>
+
+<div class="callout">
+  <span class="label">What the advisory does not know</span>
+  Unreported incidents, checkpoints established this morning, road and vehicle
+  condition, and escort arrangements are all invisible to it. The interface says
+  so explicitly. The output ranks options and explains why; it never chooses,
+  because the person in the vehicle knows things the application does not.
+</div>
+
+<!-- ══════════════════════════ 10 ══════════════════════════ -->
+<h2 class="page-break">10. SOS</h2>
+
+<p>The design constraint: the person triggering this may have seconds, one hand,
+and no signal.</p>
+
+<table>
+  <thead><tr><th style="width:44mm">Decision</th><th>Reasoning</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Hold, not tap</strong></td><td>Broadcasting a live position cannot be undone quietly. A 1.6-second hold with a progress ring and haptic feedback is deliberate but still usable under stress.</td></tr>
+    <tr><td><strong>Always reachable</strong></td><td>Present on every worker screen. Nothing is permitted to obscure it, including transient messages — which is why notifications appear at the top of the screen.</td></tr>
+    <tr><td><strong>Queued first</strong></td><td>Recorded on the device before any network attempt, and sent the instant signal returns.</td></tr>
+    <tr><td><strong>One live event per worker</strong></td><td>A second trigger escalates the existing event rather than fragmenting the officer's view across two cards.</td></tr>
+    <tr><td><strong>Independent position pings</strong></td><td>Each is separately retryable. A dropped ping never invalidates the event.</td></tr>
+    <tr><td><strong>Acknowledgement is distinct from resolution</strong></td><td>The worker most needs to know a human has seen it. Acknowledgement is one tap and is timed as its own metric.</td></tr>
+  </tbody>
+</table>
+
+<p>Officers see live events with the position track, add notes visible to the
+worker, and resolve with a required note. The worker may stand down their own
+event. The full timeline is retained for post-incident review.</p>
+
+<!-- ══════════════════════════ 11 ══════════════════════════ -->
+<h2>11. Design System</h2>
+
+<p>Dark-first. The application is used at night, in vehicles and in low-light
+compounds, where a bright screen is both a comfort problem and a personal
+security problem. Both schemes are fully defined; no colour falls back to a
+guess.</p>
+
+<h3>The severity palette was computed, not chosen</h3>
+
+<p>Severity is the fastest signal in the product, so the ramp was validated
+rather than eyeballed. An initial palette placed medium and high only ΔE 11.2
+apart in normal vision — two adjacent severity levels that look alike, in a
+safety application. The ramp was re-stepped until both schemes passed:</p>
+
+<table>
+  <thead><tr><th style="width:34mm">Scheme</th><th>CVD separation</th><th>Normal vision</th><th>Contrast</th></tr></thead>
+  <tbody>
+    <tr><td>Dark</td><td>ΔE 12.9 (deutan)</td><td>ΔE 16.3</td><td>All ≥ 3:1</td></tr>
+    <tr><td>Light</td><td>ΔE 13.9 (protan)</td><td>ΔE 15.5</td><td>All ≥ 3:1</td></tr>
+  </tbody>
+</table>
+
+<p>Severity is additionally encoded by <strong>pin size</strong> on the map and is
+<strong>always paired with its word</strong>, so the level never rests on colour
+alone — which matters for colour-blind users and in direct sunlight, where hue
+separation collapses.</p>
+
+<h3>Other conventions</h3>
+
+<ul>
+  <li>Minimum 44 px touch targets — field use means gloves, motion and hurry</li>
+  <li>Haptics as an accessibility feature: confirmation you can feel without looking</li>
+  <li>Empty states distinguish "nothing exists" from "nothing matches your filter"</li>
+  <li>Charts follow one axis, never two; colour never carries identity alone</li>
+  <li>Accessibility roles, labels and live regions throughout</li>
+</ul>
+
+<!-- ══════════════════════════ 12 ══════════════════════════ -->
+<h2>12. Testing and Verification</h2>
+
+<div class="metrics">
+  <div class="metric"><div class="n">82</div><div class="l">Logic</div></div>
+  <div class="metric"><div class="n">39</div><div class="l">Security</div></div>
+  <div class="metric"><div class="n">28</div><div class="l">Integration</div></div>
+  <div class="metric"><div class="n">149</div><div class="l">Total</div></div>
+</div>
+
+<table>
+  <thead><tr><th style="width:34mm">Suite</th><th>Covers</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Logic</strong><br><code>npm test</code></td><td>Geodesic and point-to-path geometry against known distances; classifier behaviour on real report narratives including duplicate detection and the refusal path; dataset integrity and determinism; validation schemas.</td></tr>
+    <tr><td><strong>Security</strong><br><code>npm run test:rls</code></td><td>Signs in as real users with the public key and asserts every boundary: anonymous access denied; workers cannot see pending reports, reporter identities, invites or the audit log; workers cannot self-promote; <strong>admins cannot verify or issue alerts</strong>; SOS is not cross-shared; unrelated organisations see nothing; nobody can write the audit log.</td></tr>
+    <tr><td><strong>Integration</strong><br><code>npm run test:transport</code></td><td>Walks the entire loop against the live database — file, verify, fan out, receive — and asserts idempotency, automatic attribution, reporter exclusion, position blurring, PostGIS route analysis and audit generation.</td></tr>
+  </tbody>
+</table>
+
+<p>Also enforced: TypeScript strict mode with no errors, zero lint errors
+including React Compiler's purity and ref rules, and a clean toolchain check.</p>
+
+<h3>Defects the test suites caught</h3>
+
+<table>
+  <thead><tr><th style="width:48mm">Defect</th><th>Consequence had it shipped</th></tr></thead>
+  <tbody>
+    <tr><td>AI suggestions writable by a client on first write</td><td>An officer could fabricate an AI recommendation on a report that never had one — the audit trail would show the model agreeing with a decision it never made.</td></tr>
+    <tr><td>Malformed payloads mapped to a retryable error</td><td>An SOS that could never send would retry silently and forever, while the worker believed help was coming.</td></tr>
+    <tr><td>Classifier missed common phrasing</td><td>"Armed men stopped two vehicles" classified as <em>Other</em> at 28% confidence, so the corridor was never flagged in Safe Route.</td></tr>
+    <tr><td>Severity colours too close to distinguish</td><td>Two adjacent severity levels indistinguishable at a glance.</td></tr>
+  </tbody>
+</table>
+
+<!-- ══════════════════════════ 13 ══════════════════════════ -->
+<h2 class="page-break">13. Deployment and Operations</h2>
+
+<h3>Commands</h3>
+
+<pre><code>npm install              install dependencies
+npm start                development server (a / i / w)
+npm run android          native Android build
+npm run web              browser
+
+npm run db:seed          apply all migrations, then demo data
+npm run db:seed -- --schema   migrations only
+
+npm test                 logic suite
+npm run test:rls         security boundaries
+npm run test:transport   end-to-end against the live database
+npm run test:all         everything, plus typecheck</code></pre>
+
+<h3>Configuration</h3>
+
+<p>Environment values are injected at build time through a dynamic Expo config.</p>
+
+<div class="callout warn">
+  <span class="label">Critical</span>
+  Variables prefixed <code>EXPO_PUBLIC_</code> are <strong>inlined into the
+  application bundle</strong> and are readable by anyone holding the installed
+  app. Only the public API key belongs there. The service role key — which
+  bypasses Row Level Security entirely — and the AI provider key must exist only
+  as server-side function secrets, and must never appear in the repository.
+</div>
+
+<h3>Operational notes</h3>
+
+<ul>
+  <li><strong>Backups.</strong> The audit log is the accountability record;
+  point-in-time recovery should be enabled before real users.</li>
+  <li><strong>Project pausing.</strong> Free-tier projects pause after inactivity.
+  Unacceptable for a safety application — a paid tier is required in production.</li>
+  <li><strong>Migrations replay cleanly.</strong> Verified by applying twice.</li>
+  <li><strong>Email confirmation</strong> is currently disabled for demonstration
+  and should be re-enabled, with a deep link, before real users.</li>
+  <li><strong>Not indexed.</strong> This is an authenticated tool for named field
+  staff; search visibility is a deliberate non-goal.</li>
+</ul>
+
+<!-- ══════════════════════════ 14 ══════════════════════════ -->
+<h2>14. Known Limitations and Roadmap</h2>
+
+<table>
+  <thead><tr><th style="width:44mm">Item</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr><td><strong>AI classification on new reports</strong></td><td>The classifier is implemented and its output shape is the contract the interface is built against, but it has not yet been deployed as a server-side function. Existing reports carry suggestions; newly filed reports remain unclassified until deployment. Requires a paid AI provider key.</td></tr>
+    <tr><td><strong>Photograph upload</strong></td><td>Capture and queueing work; images are held as local URIs pending object storage.</td></tr>
+    <tr><td><strong>Background push</strong></td><td>In-app realtime alerts work. Delivery while the application is closed requires device push tokens and a development build.</td></tr>
+    <tr><td><strong>Directions API</strong></td><td>Route geometry is currently synthesised from real road corridors. The risk analysis is genuine and unchanged; only the geometry becomes road-accurate when a routing provider is connected.</td></tr>
+    <tr><td><strong>Dual-control verification</strong></td><td>Enforced server-side for critical reports; the second-officer interface is not yet built.</td></tr>
+    <tr><td><strong>Generated database types</strong></td><td>Row types are currently loose. Generating types would make every query statically checked against the real schema.</td></tr>
+  </tbody>
+</table>
+
+<h3>Suggested sequence</h3>
+
+<ol>
+  <li>Deploy the classification function — completes the loop for new reports</li>
+  <li>Object storage for photographs</li>
+  <li>Push tokens and a development build for background delivery</li>
+  <li>Enable backups and email confirmation; move off the free tier</li>
+  <li>Connect a routing provider for road-accurate geometry</li>
+  <li>Field pilot with one organisation before widening</li>
+</ol>
+
+<div class="callout key">
+  <span class="label">Closing note</span>
+  The properties this system is built to protect are that <strong>no threat
+  reaches the field without a named human approving it</strong>, that
+  <strong>no reporter is exposed to the people they reported on</strong>, and
+  that <strong>nothing is silently lost when the network disappears</strong>.
+  Every architectural decision documented above serves one of those three. Where
+  a trade-off was made, it was made in their favour.
+</div>
+
+<footer>
+  Safe Route AI — Technical Documentation · Generated from the project source.
+</footer>
+
+</body>
+</html>

@@ -1,42 +1,94 @@
 {
   "expo": {
-    "name": "saferoute",
-    "slug": "saferoute",
+    "name": "Safe Route AI",
+    "slug": "safe-route-ai",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "saferoute",
     "userInterfaceStyle": "automatic",
+    "backgroundColor": "#0B1220",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "supportsTablet": true,
+      "bundleIdentifier": "ai.saferoute.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Safe Route AI uses your location to attach an accurate position to threat reports, to alert you when a verified threat is near you, and to broadcast your position during an SOS.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Background location lets Safe Route AI keep broadcasting your position to your security officers while an SOS is active.",
+        "NSCameraUsageDescription": "Attach a photo to a threat report so officers can verify it faster.",
+        "NSPhotoLibraryUsageDescription": "Attach an existing photo to a threat report.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "ai.saferoute.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0B1220",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "CAMERA",
+        "VIBRATE",
+        "RECEIVE_BOOT_COMPLETED"
+      ]
     },
     "web": {
-      "output": "static",
+      "//": "Single-page output, not static. Every route is behind an auth gate, so at build time there is no session and pre-rendering produces empty shells. This app is also deliberately not indexed - it is an authenticated tool for named field staff - so SSG buys nothing.",
+      "output": "single",
+      "bundler": "metro",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
       "expo-router",
+      "expo-secure-store",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#0B1220",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 96
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Safe Route AI broadcasts your live position to your security officers while an SOS is active."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Attach a photo to a threat report so officers can verify it faster.",
+          "cameraPermission": "Take a photo of the incident to attach to your report."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#E11D48",
+          "defaultChannel": "threat-alerts"
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "supabaseUrl": {},
+      "supabaseAnonKey": {},
+      "apiMode": "mock",
+      "directionsProvider": {},
+      "mapboxToken": {},
+      "sentryDsn": {},
+      "router": {},
+      "eas": {
+        "projectId": "1cc8e6d1-6a5c-4ec1-a8e1-90009d3c52f4"
+      }
+    },
+    "owner": "abdik90"
   }
 }

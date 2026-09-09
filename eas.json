@@ -1,0 +1,39 @@
+{
+  "cli": {
+    "version": ">= 23.0.0",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "environment": "development"
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_MODE": "supabase"
+      },
+      "environment": "preview"
+    },
+    "production": {
+      "distribution": "store",
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_MODE": "supabase"
+      },
+      "environment": "production"
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

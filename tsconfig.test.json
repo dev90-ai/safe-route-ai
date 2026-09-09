@@ -1,0 +1,36 @@
+{
+  "//": "Compiles the platform-independent logic to CommonJS so scripts/logic-tests.js can execute it under plain Node. React Native screens are deliberately out of scope here.",
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "declaration": false,
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+    "paths": { "@/*": ["./src/*"] },
+    "outDir": ".test-build",
+    "rootDir": "./src"
+  },
+  "include": [
+    "src/lib/geo.ts",
+    "src/lib/format.ts",
+    "src/lib/ids.ts",
+    "src/lib/logger.ts",
+    "src/lib/storage.ts",
+    "src/lib/validation.ts",
+    "src/ai/classifier.ts",
+    "src/api/seed.ts",
+    "src/api/db.ts",
+    "src/api/errors.ts",
+    "src/api/types.ts",
+    "src/constants/regions.ts",
+    "src/constants/threats.ts",
+    "src/theme/tokens.ts"
+  ]
+}
